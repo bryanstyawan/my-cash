@@ -31,6 +31,6 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 *.sublime-project
 /tests/tests/
 /tests/results/
-#/assets/images/avatar/*
-#/assets/images/gallary/*
-#/assets/images/slider/*
+/assets/images/avatar/*
+/assets/images/gallary/*
+/assets/images/slider/*
