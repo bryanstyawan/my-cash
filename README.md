@@ -1,25 +1,23 @@
 ______________________________________
+Dependency
+______________________________________
+
+	1. 	Composer [Min v.1.8.6]
+	2. 	Node [Min v.10.16.0] + npm [Min v.6.9.0]
+	3. 	Browserify
+
+______________________________________
 Instalasi
 ______________________________________
-1. 	Composer [Min v.1.8.6]
-	composer -v
-2. 	node [Min v.10.16.0] + npm [Min ]
-	node -v
-	npm -v
-3. git
-
-
-Setelah semua sudah diinstall, ikuti langkah dibawah ini.
-
-a. 	composer install (Setiap ada perubahan di file Composer.json)
-b. 	npm i / npm install (Setiap ada perubahan di file package-lock.json / package.json)
-c. 	Ubah config database dan base url nya
- 	config database = config/database	-> sesuaikan dengan database yang dibuat
-	config base_url = config/config		-> http://localhost/nama_folder_yang_dibuat
-d.	buat database baru terlebih dahulu
-e.	php index.php tools migrate
-f.	php index.php tools LoadSeeder
-
+	1. 	composer install
+	2. 	npm install
+	3. 	Ubah config database dan base url nya
+		config database = config/database	-> sesuaikan dengan database yang dibuat
+		config base_url = config/config		-> http://localhost/nama_folder_yang_dibuat
+	4.	buat database baru terlebih dahulu
+	5.	php index.php tools migrate
+	6.	php index.php tools LoadSeeder
+	7. 	browserify main.js -o bundle.js
 ______________________________________
 Migrate database
 ______________________________________
@@ -94,20 +92,6 @@ ______________________________________
 	
 	*	tidak direkomendasikan ketika aplikasi sudah didalam lingkungan production,
 		perintah ini hanya dilakukan ketika dalam development
-	
-______________________________________
-Git Store
-______________________________________
-1. 	git pull origin master atau git pull origin dev1
-2. 	git push origin [branch masing masing]
-3. 	git checkout [branch masing masing]
-	contoh
-	git checkout dev5
-
--------
-1. git commit -m "remarks"
-2. git push origin [branch masing masing]
-
 
 ______________________________________
 Generate Controller + modul
@@ -136,66 +120,6 @@ php index.php tools createViews "nama_module" "folder" "nama_file"
 
 contoh
 	php index.php tools createViews master agama index
-
-
-______________________________________
-Framework CSS + JS (Assets), Web package, PHP package
-______________________________________
-Materialize
-	Lihat dokumentasinya disini yah
-	https://materializecss.com/
-
-
-NPM
-	Semua web package seperti jquery, datatables dll dikendalikan oleh npm. 
-	npm digunakan untuk installasi component web + kontrol version yang digunakan.
-
-	Jika ada penambahan component lakukan seperti dibawah ini
-
-		npm install nama_package
-		contoh
-		npm install datatables
-
-	untuk melihat seluruh paket yang tersedia
-
-		npm view nama_package version
-		contoh
-		npm view datatables version
-
-	untuk menambahkan web package berdasarkan versionnya
-
-		npm install nama_package@[version]
-		contoh
-		npm install nama_package@1.10.18
-
-
-	Jika ada perubahan didalam file package-lock.json atau package.json
-	lakukan perintah dibawah ini
-
-		npm install 
-		atau
-		npm i 
-
-	[Warning]
-		Jangan pernah lakukan perintah
-			- npm audit fix (dan sejenisnya)
-			- npm update
-		Dikhawatirkan library ada yang gak jalan. 
-
-Composer
-	Semua PHP package dikendalikan oleh composer
-
-	Jika ada perubahan didalam file composer.lock atau composer.json
-	lakukan perintah dibawah ini	
-
-		composer install
-
-browserify
-	Pertama install dulu browserify
-	npm install -g browserify
-	
-	setelah itu jalan perintah dibawah ini
-	browserify main.js -o bundle.js
 
 ______________________________________
 Field wajib di setiap table
