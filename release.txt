@@ -12,7 +12,6 @@ Improved:
 - Tools
 - Menus
 - Permissions
-- Delete user guides CI
 Fixed:
 0
 Error:
