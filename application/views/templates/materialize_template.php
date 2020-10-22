@@ -9,7 +9,7 @@
 		<meta name="description" content="">
 		<meta name="keywords" content="">
 		
-		<title>Sikerja</title>
+		<title>My Cash</title>
 		<!-- Favicons-->
 		<link rel="icon" href="images/favicon/favicon-32x32.png" sizes="32x32">
 		<!-- Favicons-->

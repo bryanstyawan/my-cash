@@ -6,6 +6,7 @@ class Menus extends CI_Controller
 	{
 		parent::__construct();
 		date_default_timezone_set('Asia/Jakarta');
+		$this->load->model('Mmenus');		
 	}
 
 	public function index()
@@ -21,12 +22,12 @@ class Menus extends CI_Controller
 		$data = array();
 		if ($arg == 'menus') {
 			# code...
-			$get_data 	= $this->Stores->getWhere('config_menus',array('AND'=>array('id_parent'=>0)),'sort_number ASC')->result_array();
+			$get_data 	= $this->Stores->getWhere('config_menus',array('AND'=>array('id_parent'=>0,'status <>' => 4)),'sort_number ASC')->result_array();
 			$index 	= 0;
 			foreach ($get_data as $key) {
 				# code...
 				$sort = $index + 1;
-				$children   = $this->Stores->getWhere('config_menus',array('AND'=>array('id_parent' => $key['id'])),'sort_number ASC')->result_array();
+				$children   = $this->Stores->getWhere('config_menus',array('AND'=>array('id_parent' => $key['id'],'status <>'=> 4)),'sort_number ASC')->result_array();
 				$isHasChild = ($children !=  array()) ? 1  :  0 ;
 
 				$data[$index]['id']      = (int)$key['id'];				
@@ -39,7 +40,7 @@ class Menus extends CI_Controller
 					{
 						# code...
 						$sort1 = $index1 + 1;
-						$children2   = $this->Stores->getWhere('config_menus',array('AND'=>array('id_parent' => $key2['id'])),'sort_number ASC')->result_array();
+						$children2   = $this->Stores->getWhere('config_menus',array('AND'=>array('id_parent' => $key2['id'],'status <>'=> 4)),'sort_number ASC')->result_array();
 						$isHasChild2 = ($children2 !=  array()) ? 1  :  0 ;
 
 						$data[$index]['children'][$index1]['id']       = (int)$key2['id'];				
@@ -50,7 +51,7 @@ class Menus extends CI_Controller
 						{
 							# code...
 							$sort2 = $index2 + 1;	
-							$children3   = $this->Stores->getWhere('config_menus',array('AND'=>array('id_parent' => $key3['id'])),'sort_number ASC')->result_array();
+							$children3   = $this->Stores->getWhere('config_menus',array('AND'=>array('id_parent' => $key3['id'],'status <>'=> 4)),'sort_number ASC')->result_array();
 							$isHasChild3 = ($children3 !=  array()) ? 1  :  0 ;
 
 							$data[$index]['children'][$index1]
@@ -86,7 +87,7 @@ class Menus extends CI_Controller
 			$data = [
 				[
 					'name'   => 'f_parent',
-					'detail' => $this->Stores->get('config_menus')->result_array()					
+					'detail' => $this->Mmenus->Menus()->result_array()					
 				]
 			];			
 		}
@@ -195,7 +196,8 @@ class Menus extends CI_Controller
 		}						
 		elseif ($data_sender['crud'] == 'delete') {
 			# code...
-			$res_data			= $this->Stores->delete('config_menus',array('id' => $data_sender['oid']));
+			$data_store['status'] 	= 4;
+			$res_data				= $this->Stores->update('config_menus',$data_store,array('id' => $data_sender['oid']));			
 			$text_status		= $this->Stores->status($res_data,'Data berhasil dihapus.');			
 		}
 		

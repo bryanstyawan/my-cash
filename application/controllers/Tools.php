@@ -213,27 +213,28 @@ class $name extends CI_Controller
 		date_default_timezone_set('Asia/Jakarta');
 	}
 
+	private \$data = [];
+
 	public function index()
 	{
-		\$data['title']	= 'Judul disesuaikan';//Judul
-		\$view			= \$this->load->view('dashboard/soon/index',\$data);
+		\$this->data['title']	= 'Judul disesuaikan';//Judul
+		\$view			= \$this->load->view('dashboard/soon/index',\$this->data);
 		return \$view;
 	}	
 
 	public function data(\$arg,\$id)
 	{
 		# code...
-		\$data = array();
 		if (\$arg == 'table') {
 			# code...
-			\$data['list'] = \$this->Stores->get('nama_table')->result_array();			
+			\$this->data['list'] = \$this->Stores->get('nama_table')->result_array();			
 		}
 		else
 		{
-			\$data['list'] = \$this->Stores->getWhere('nama_table',array('AND'=>array('id'=>\$id)))->result_array();			
+			\$this->data['list'] = \$this->Stores->getWhere('nama_table',array('AND'=>array('id'=>\$id)))->result_array();			
 		}
 
-		echo json_encode(\$data);		
+		echo json_encode(\$this->data);		
 	}
 	
 	public function store()
@@ -249,25 +250,43 @@ class $name extends CI_Controller
 			'oid'		=> \$requestData['oid'], 
 		);
 		
-		\$data_store = \$this->Globals->logStore(\$data_sender['crud']);		
-		if (\$data_sender['crud'] == 'insert') 
+		\$data_store = \$this->Globals->logStore(\$data_sender['crud']);
+		if (\$data_store != 0) {
+			if (\$data_sender['crud'] == 'insert') 
+			{
+				# code...
+				\$checkData = \$this->Stores->getWhere('fdn_category_expenses',array('AND'=>array('name' => \$data_sender['name'])))->result_array();
+				if (\$checkData == array()) {
+					# code...
+					\$data_store['name']     = \$data_sender['name'];
+					\$data_store['status'] 	 = 1;
+					\$res_data                = \$this->Stores->insert('fdn_category_expenses',\$data_store);
+					\$text_status             = \$this->Stores->status(\$res_data,'Your data has been successfully saved.');				
+				}
+				else
+				{
+					\$res_data = false;
+					\$text_status = 'Failed to save data, data already exists.';				
+				}
+			}
+			elseif (\$data_sender['crud'] == 'update') {
+				# code...
+				\$data_store['name']     = \$data_sender['name'];
+				\$res_data                = \$this->Stores->update('fdn_category_expenses',\$data_store,array('id' => \$data_sender['oid']));
+				\$text_status             = \$this->Stores->status(\$res_data,'Your data has been successfully updated.');							
+			}
+			elseif (\$data_sender['crud'] == 'delete') {
+				# code...
+				\$data_store['status']    = 4;			
+				\$res_data                = \$this->Stores->update('fdn_category_expenses',\$data_store,array('id' => \$data_sender['oid']));
+				\$text_status             = \$this->Stores->status(\$res_data,'Your data has been successfully deleted.');				
+			}						
+		}
+		else
 		{
-			# code...
-			\$data_store['name'] = \$data_sender['name'];
-			\$res_data			= \$this->Stores->insert('config_groups',\$data_store);
-			\$text_status		= \$this->Stores->status(\$res_data,'Data berhasil ditambahkan.');			
-		}
-		elseif (\$data_sender['crud'] == 'update') {
-			# code...
-			\$data_store['name'] = \$data_sender['name'];
-			\$res_data			= \$this->Stores->update('config_groups',\$data_store,array('id' => \$data_sender['oid']));
-			\$text_status		= \$this->Stores->status(\$res_data,'Data berhasil diubah.');			
-		}
-		elseif (\$data_sender['crud'] == 'delete') {
-			# code...
-			\$res_data			= \$this->Stores->delete('config_groups',array('id' => \$data_sender['oid']));
-			\$text_status		= \$this->Stores->status(\$res_data,'Data berhasil dihapus.');			
-		}
+			\$res_data    = 'logoff';
+			\$text_status = 'Im sorry, your session has been expired.';			
+		}				
 		
 		\$res = array
 					(
@@ -368,194 +387,186 @@ class $name extends CI_Model
 		$path = APPPATH . "modules/$module/views/$folder/$name.php";
 		$my_views = fopen($path, "w") or die("Unable to create model file!");		
 		$views_template = "<?=\$this->load->view('templates/component');?>
-		<input type=\"hidden\" id=\"crud\">
-		<input type=\"hidden\" id=\"oid\">
-		<div id=\"view_data\" class=\"card card card-default scrollspy\">
-			<div class=\"card-content\">
-				<a class=\"btn-floating waves-effect waves-effect waves-effect waves-light cyan right\" id=\"btn_add\" onclick=\"openForm('add',0,0)\">
-					<i class=\"material-icons\">add</i>
-				</a>			
-				<h4 class=\"card-title\"><?=\$title;?></h4>
-				<div class=\"row\">
-					<div class=\"col s12 dataTables_scrollBody\">
-						<table id=\"table-store\" class=\"table-view display dataTable dtr-inline\">
-							<thead>
-								<tr>
-									<th>No</th>
-									<th>Nama</th>
-									<th>Aksi</th>
-								</tr>
-							</thead>
-							<tbody>
-		
-							</tbody>
-						</table>
-					</div>
-				</div>
+<div id=\"view_data\" class=\"card card card-default scrollspy\">
+	<div class=\"card-content\">
+		<div id=\"btn_add\"></div>
+		<h4 class=\"card-title\"><?=\$title;?></h4>
+		<div class=\"row\">
+			<div class=\"col s12 dataTables_scrollBody\">
+				<table id=\"table-store\" class=\"table-view display dataTable dtr-inline\">
+					<thead>
+						<tr>
+							<th>No</th>
+							<th>Name</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+
+					</tbody>
+				</table>
 			</div>
 		</div>
-		<div id=\"form_data\" class=\"card card card-default scrollspy\">
-			<div class=\"card-panel\">
-				<a class=\"btn-floating waves-effect waves-light red right-align right\" onclick=\"openForm('close',0,0)\">
-					<i class=\"material-icons\">clear</i>
-				</a>							
-				<h4 class=\"card-title\"><?=\$title;?></h4>
-				<h4 class=\"card-title\" id=\"lbl_head_form\"></h4>		
+	</div>
+</div>
+<div id=\"form_data\" class=\"card card card-default scrollspy\">
+	<div class=\"card-panel\">
+		<a class=\"btn-floating waves-effect waves-light red right-align right\" onclick=\"openForm('close',0,0)\">
+			<i class=\"material-icons\">clear</i>
+		</a>							
+		<h4 class=\"card-title left\" style=\"margin-right: 10px;\"><?=\$title;?></h4>
+		<h4 class=\"card-title\" id=\"lbl_head_form\"></h4>		
+		<div class=\"row\">
+			<div class=\"col s12\">				
 				<div class=\"row\">
-					<div class=\"col s12\">				
-						<div class=\"row\">
-							<div class=\"input-field col s12\">
-								<input placeholder=\"Nama\" class=\"clean-form\" id=\"f_name\" type=\"text\">
-								<label for=\"f_name\" class=\"active\">Nama</label>
-							</div>
-						</div>
-		
-						<div class=\"row\">
-							<div class=\"input-field col s12\">
-							<button class=\"btn waves-effect waves-light right\" id=\"btn-trigger-controll\">
-								Simpan
-								<i class=\"material-icons right\">send</i>
-							</button>
-							</div>
-						</div>				
+					<div class=\"input-field col s12\">
+						<input placeholder=\"Nama\" class=\"clean-form\" id=\"f_name\" type=\"text\">
+						<label for=\"f_name\" class=\"active\">Name</label>
 					</div>
 				</div>
+
+				<div class=\"row\">
+					<div class=\"input-field col s12\">
+					<button class=\"btn waves-effect waves-light right\" id=\"btn-trigger-controll\">
+						Save Data
+						<i class=\"material-icons right\">send</i>
+					</button>
+					</div>
+				</div>				
 			</div>
 		</div>
-		
-		<script>
-			var res_json = [];
-			var data_rules = rules_module;
-			(data_rules.create == 1) ? $('#btn_add').show() : $('#btn_add').hide() ;	
-			var data_initial = 
+	</div>
+</div>
+
+<script>
+	var state = {
+		'res_json' : [],
+		'data_rules' : rules_module,
+		'data' : {
+			'f_name' : '',
+			'crud' 	 : '',
+			'oid' 	 : ''			
+		},
+		'dom' : {
+			'insert' : ''
+		}
+	};
+
+	loadData('table',0);
+	(state.data_rules.create == 1) ? $('#btn_add').html(loadButton('btn','add','add',0,0,'Tambah','btn-floating waves-effect waves-effect waves-effect waves-light cyan right')) : '' ;	
+	$(document).ready(function(){
+		$('#form_data').hide();
+
+		$('#btn-trigger-controll').click(function() {
+			state.data.f_name = $('#f_name').val()
+			if (state.data.f_name.length <= 0) 
 			{
-				'f_name' : '',
-				'crud' 	 : '',
-				'oid' 	 : ''  
-			}
-		
-			$(document).ready(function(){
-				$('#form_data').hide();
-		
-				$('#btn-trigger-controll').click(function() {
-					var f_name = $('#f_name').val();
-		
-					var data_sender = {
-						'f_name' : f_name,
-						'crud' 	 : $('#crud').val(),
-						'oid' 	 : $('#oid').val()  
-					}
-					if (f_name <= 0) 
-					{
-						Notiflix.Notify.Failure(' Jenis Jabatan harap diisi')
-					}								
-					else
-					{
-						sendData(data_sender)
-					}
-				})
-			});	
-		
-			loadData('table',0);
-		
-			function loadData(arg,id) 
+				Notiflix.Notify.Failure(' Jenis Jabatan harap diisi')
+			}								
+			else
 			{
-				state_process('before_send')
-				axios.post('<?=base_url();?>'+'master/jenis_jabatan/data/'+arg+'/'+id)
-				.then(function (response) 
-				{
-					if (response.status == 200) 
-					{
-						if (arg == 'table') 
-						{
-							var tr_insert = '';
-							destroyTable('table-store');					
-							_.forEach(response.data.list, function(res,index) 
-							{
-								tr_insert += '<tr>'+
-													'<td>'+(index+1)+'</td>'+
-													'<td>'+res.nama_jenisjabatan+'</td>'+
-													'<td>'+
-														((data_rules.update == 1) ? loadButton('btn','edit','edit',res.id,res.nama_jenisjabatan,'','default_class') : '') +
-														((data_rules.delete == 1) ? loadButton('btn','delete','delete',res.id,res.nama_jenisjabatan,'','default_class') : '') +																						
-													'</td>'+																				
-											'</tr>';
-							});
-							$('#table-store tbody').html(tr_insert);
-							$('#table-store').dataTable();					
-						}
-						else if(arg == 'single')
-						{
-							var obj = response.data.list[0];
-							$('#oid').val(obj.id);
-							$('#f_name').val(obj.nama_jenisjabatan);
-						}
-						state_process('after_send')				
-					}
-				})
-				.catch(function (error) {
-					send_response(error.response,'report');
-				})		
+				sendData(state.data)
 			}
-		
-			function sendData(data_sender) {
-				state_process('before_send')		
-				axios.post('<?=base_url();?>'+'master/jenis_jabatan/store', data_sender)
-				.then(function (response) {
-					send_response(response,'report');
-					if (response.data.status == true) {					
-						$('.clean-form').val('');					
-						openForm('close',0,0)
-						loadData('table',0);
-					}
-				})
-				.catch(function (error) {
-					send_response(error.response,'report');
-				});			
-			}
-		
-			function openForm(arg,id,name) 
+		})
+	});	
+
+	function loadData(arg,id) 
+	{
+		state_process('before_send')
+		axios.post('<?=base_url();?>'+'fondation/expenses/data/'+arg+'/'+id)
+		.then(function (response) 
+		{
+			if (response.status == 200) 
 			{
-				$('.clean-form').val('');		
-				if (arg == 'add') 
+				if (arg == 'table') 
 				{
-					$('#view_data').hide();
-					$('#lbl_head_form').html('Tambah data');
-					$('#crud').val('insert');
-					$('#form_data').show();			
+					state.dom.insert = '';
+					destroyTable('table-store');					
+					_.forEach(response.data.list, function(res,index) 
+					{
+						state.dom.insert += '<tr>'+
+											'<td>'+(index+1)+'</td>'+
+											'<td>'+res.name+'</td>'+
+											'<td>'+
+												((state.data_rules.update == 1) ? loadButton('btn','edit','edit',res.id,res.nama_jenisjabatan,'Edit Data','default_class') : '') +
+												((state.data_rules.delete == 1) ? loadButton('btn','delete','delete',res.id,res.nama_jenisjabatan,'Delete Data','default_class') : '') +																						
+											'</td>'+																				
+									'</tr>';
+					});
+					$('#table-store tbody').html(state.dom.insert);
+					$('#table-store').dataTable();					
 				}
-				else if (arg == 'edit') 
+				else if(arg == 'single')
 				{
-					loadData('single',id);
-					$('#view_data').hide();
-					$('#lbl_head_form').html('Ubah data');
-					$('#crud').val('update');			
-					$('#form_data').show();			
-				}		
-				else if (arg == 'delete') 
-				{
-					Notiflix.Confirm.Show(
-						'Hapus Data',
-						'Anda yakin ingin hapus data ini ?',
-						'Ya, Hapus data ini',
-						'Tidak',
-						function(){ 
-							var data_sender     = data_initial;					
-							data_sender['crud'] = 'delete';
-							data_sender['oid']  = id;
-							sendData(data_sender)
-						},
-						function(){}
-					);
+					var obj = response.data.list[0];
+					state.data.oid = obj.id;											
+					$('#f_name').val(obj.name);
 				}
-				else if (arg == 'close')
-				{
-					$('#view_data').show();
-					$('#form_data').hide();			
-				}
+				state_process('after_send')				
 			}
-		</script>
-		";
+		})
+		.catch(function (error) {
+			send_response(error.response,'report');
+		})		
+	}
+
+	function sendData(data_sender) {
+		state_process('before_send')		
+		axios.post('<?=base_url();?>'+'fondation/expenses/store', data_sender)
+		.then(function (response) {
+			send_response(response,'report');
+			if (response.data.status == true) {					
+				$('.clean-form').val('');					
+				openForm('close',0,0)
+				loadData('table',0);
+			}
+		})
+		.catch(function (error) {
+			send_response(error.response,'report');
+		});			
+	}
+
+	function openForm(arg,id,name) 
+	{
+		$('.clean-form').val('');		
+		if (arg == 'add') 
+		{
+			state.data.crud = 'insert';			
+			$('#view_data').hide();
+			$('#lbl_head_form').html(' > Add data');
+			$('#form_data').show();			
+		}
+		else if (arg == 'edit') 
+		{
+			state.data.crud = 'update';			
+			loadData('single',id);						
+			$('#view_data').hide();
+			$('#lbl_head_form').html(' > Edit data');
+			$('#form_data').show();			
+		}		
+		else if (arg == 'delete') 
+		{
+			Notiflix.Confirm.Show(
+				'Delete Data',
+				'Do you really want to delete these data ?',
+				'Yes, Delete these data',
+				'No',
+				function(){ 
+					state.data.crud = 'delete';
+					state.data.oid = id;										
+					sendData(state.data)
+				},
+				function(){}
+			);
+		}
+		else if (arg == 'close')
+		{
+			$('#view_data').show();
+			$('#form_data').hide();			
+		}
+	}
+</script>		
+";
 
 		fwrite($my_views, $views_template);
 	

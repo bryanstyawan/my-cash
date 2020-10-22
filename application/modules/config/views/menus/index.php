@@ -8,7 +8,7 @@
 		</a>
 
 		<a class="btn-floating waves-effect waves-effect waves-effect waves-light green right" onclick="openForm('reload',0,0)">
-			<i class="material-icons">add</i>
+			<i class="material-icons">autorenew</i>
 		</a>		
 		<h4 class="card-title"><?=$title;?></h4>
 		<div class="row">
@@ -192,7 +192,7 @@
 						var _name     = res.name;
 						_.forEach(res.detail, function(res1,index)
 						{
-							_name1 = res1.name;
+							_name1 = ((res1.id_parent != 0) ? (res1.name_parent+' > '+res1.name) : res1.name);
 
 							$('#'+_name).append($('<option>', { 
 								value: res1.id,

@@ -92,4 +92,10 @@ class Globals extends CI_Model
 	public function toNum($num) {
 		return chr(substr("000".($num+65),-3));
 	}	
+
+	public function dd($data)
+	{
+		# code...
+		print_r($data);die();
+	}	
 }

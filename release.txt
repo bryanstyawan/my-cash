@@ -1,4 +1,23 @@
 v1.0.0-Alpha.0920    
+2020-10-22
+==========
+New:
+- Category > Expenses
+- Category > Income
+- Salary Sources
+- Expenses
+- Income
+- Cashflow
+Improved:
+- Tools
+- Menus
+- Permissions
+- Delete user guides CI
+Fixed:
+0
+Error:
+
+v1.0.0-Alpha.0920    
 2020-09-20
 ==========
 New:

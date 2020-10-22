@@ -32,8 +32,8 @@ class Permissions extends CI_Controller
 				$check_menu 			= $this->Stores->getWhere('config_permissions',array('AND' => array('id_groups' => $id,'id_menus' => $key['id'])))->result_array();
 				if ($check_menu == array()) {
 					# code...
-					$this->Stores->insert('config_permissions',array('id_groups' => $id,'id_menus' => $key['id']));
-					$check_menu 				 = $this->Stores->getWhere('config_permissions',array('AND' => array('id_groups' => $id,'id_menus' => $key['id'])))->result_array();
+					$this->Stores->insert('config_permissions',array('id_groups' => $id,'id_menus' => $key['id'],'read' => 0,'create' => 0,'update' => 0,'delete' => 0,'notify' => 0,'verify' => 0));
+					$check_menu = $this->Stores->getWhere('config_permissions',array('AND' => array('id_groups' => $id,'id_menus' => $key['id'])))->result_array();
 				}
 				
 				$child                       = $this->Stores->getWhere('config_menus',array('AND' => array('status' => 1,'id_parent' => $key['id'])),'sort_number ASC')->result_array();			
