@@ -19,7 +19,7 @@
 		<meta name="msapplication-TileImage" content="images/favicon/mstile-144x144.png">
 		<!-- For Windows Phone -->
 		<!-- CORE CSS-->
-		<script src="<?=base_url();?>bundle.js"></script>	
+		<!-- <script src="<?=base_url();?>bundle.js"></script>	 -->
 		<?=$this->load->view('templates/css_library');?>	
 		<?=$this->load->view('templates/js_library');?>
 	</head>

@@ -1,3 +1,14 @@
+v1.0.0-Alpha.1109    
+2020-11-09
+==========
+New:
+- webpack + babel
+Improved:
+- Cashflow (Layout + Expenses analisis by Category)
+Fixed:
+0
+Error:
+
 v1.0.0-Alpha.0920    
 2020-10-22
 ==========

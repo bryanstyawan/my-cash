@@ -6,20 +6,14 @@
 				<div id="btn_add"></div>
 				<h4 class="card-title"><?=$title;?></h4>
 				<div class="row">
-					<a href="#" onclick="openForm('addIncome',0,0)" class="col s12 m6">
-						<div class="card gradient-shadow gradient-45deg-light-blue-cyan border-radius-3">
-							<div class="card-content center">
-								<h5 class="white-text lighten-4">Income</h5>
-							</div>
-						</div>
-					</a>
-					<a href="#" onclick="openForm('addExpenses',0,0)" class="col s12 m6">
-						<div class="card gradient-shadow gradient-45deg-red-pink border-radius-3">
-							<div class="card-content center">
-								<h5 class="white-text lighten-4">Expenses</h5>
-							</div>
-						</div>
-					</a>
+					<div class="input-field col s6">
+						<select id="f_months_select" class="browser-default custom-select"></select>						
+						<label for="f_months_select" class="active">Months</label>
+					</div>
+					<div class="input-field col s6">
+						<select id="f_years_select" class="browser-default custom-select"></select>						
+						<label for="f_years_select" class="active">Years</label>
+					</div>															
 				</div>
 			</div>
 		</div>
@@ -88,14 +82,15 @@
 			<div class="card-content center-align">
 				<i class="material-icons amber-text small-ico-bg mb-5">check</i>
 				<h4 class="m-0"><b id="div_saldo">21.5k</b></h4>
-				<p>Saldo</p>
+				<p>Cash</p>
 			</div>
 			</div>
 		</div>
 		<div class="col s12 m6 l4 card-width">
 			<div class="card border-radius-6">
 			<div class="card-content center-align">
-				<i class="material-icons amber-text small-ico-bg mb-5">sentiment_satisfied</i>
+				<a href="#" onclick="openForm('addIncome',0,0)"><i class="material-icons green-text small-ico-bg mb-5 right">add</i></a>
+				<i class="material-icons amber-text small-ico-bg mb-5" >sentiment_satisfied</i>
 				<h4 class="m-0"><b id="div_total_income">890</b></h4>
 				<p>Income</p>
 				<p class="green-text  mt-3"><i class="material-icons vertical-align-middle">arrow_drop_up</i>
@@ -106,6 +101,7 @@
 		<div class="col s12 m6 l4 card-width">
 			<div class="card border-radius-6">
 			<div class="card-content center-align">
+				<a href="#" onclick="openForm('addExpenses',0,0)"><i class="material-icons green-text small-ico-bg mb-5 right">add</i></a>			
 				<i class="material-icons amber-text small-ico-bg mb-5">sentiment_dissatisfied</i>
 				<h4 class="m-0"><b id="div_total_expenses">1.6k</b></h4>
 				<p>Expenses</p>
@@ -117,6 +113,14 @@
 	</div>
 
 	<div class="row">
+		<div class="col s12 m6 l6 card-width">
+			<div class="card border-radius-6">
+			<div class="card-content center-align">
+				<h4>Expenses Category</h4>
+				<canvas id="expensesCategoryChart" width="400" height="400"></canvas>			
+			</div>
+			</div>
+		</div>	
 		<div class="col s12 m6 xl6">
 			<ul id="task-card" class="collection with-header">
 				<li class="collection-header cyan">
@@ -158,9 +162,7 @@
 		}
 	};
 
-	loadData('list',0);
-	loadData('select',0);
-	$(document).ready(function(){
+	$(() => {
 		$('#form_data').hide();
 
 		$('#btn-trigger-controll').click(function() {
@@ -181,22 +183,70 @@
 		})
 	});	
 
-	function loadCard(dataSources,dom) {
+	var loadCard = (dataSources,dom) => {
 		state.dom.insert = '';
 		_.forEach(dataSources, function(res,index) 
 		{
 			state.dom.insert += '<li class="collection-item dismissable">'+
 									'<label for="task1">'+
 										'<span class="width-100" style="text-decoration: none;">'+res.name+'</span>'+
-										'<a href="#" class="secondary-content"><span class="ultra-small">'+res.date+'</span></a>'+
-										'<span class="task-cat cyan">'+numberWithCommas('Rp. '+res.value)+'</span>'+
+										'<span class="secondary-content"><span class="ultra-small">'+res.date+'</span></span>'+
+										'<span class="task-cat cyan">'+((dom == li_income) ? res.name_income : res.name_expenses)+'</span>'+										
+										'<span class="task-cat right cyan">'+numberWithCommas('Rp. '+res.value)+'</span>'+										
 									'</label>'+
 								'</li>';
 		})		
 		$("#"+dom).html(state.dom.insert)
 	}
 
-	function loadData(arg,id) 
+	var visualisationExpenses = (dataSources) => {
+		var model = {name_expenses : null, value:null};
+		dataSources1 = _.without(dataSources, model )
+		// console.log(dataSources1)
+		var result = _(dataSources)
+			.groupBy('name_expenses')
+			.map(function(items, cat) {
+				return {
+					category: cat,
+					names: _.map(items, 'name'),
+					value: _.sum(_.map(items,sources => {return parseInt(sources.value)})),
+					color: randomColor(50)
+				};
+			}).value();
+
+		var data = {
+			labels: _.map(result, items => {return items.category}),
+			datasets: [{
+				label: '# of Votes',
+				data: _.map(result, items => {return items.value}),
+				backgroundColor: _.map(result, items => {return items.color}),
+				borderColor: _.map(result, items => {return items.color}),
+				borderWidth: 1
+			}]
+		};
+
+		var option = {
+			tooltips: {
+				callbacks: {
+					label: function(tooltipItem, data) {
+						return `${data.labels[tooltipItem.index]} - ${numeral(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index]).format('0,0')}`;
+					}
+				}
+			},
+			plugins: {
+				datalabels: {
+					formatter: function(value, context) {
+						return numeral(value).format('0,0');
+					}
+				}
+			}
+		};
+
+		new Chart($("#expensesCategoryChart"), {type: 'pie',data: data,options: option});
+		// new Chart($("#expensesCategoryChart1"), {type: 'pie',data: data,options: option});				
+	}
+
+	var loadData = (arg,id) => 
 	{
 		state_process('before_send')
 		axios.post('<?=base_url();?>'+'realization/cashflow/data/'+arg+'/'+id)
@@ -214,10 +264,13 @@
 					$("#div_saldo").html(numberWithCommas('Rp. '+totalSaldo))
 					$("#div_total_expenses").html(numberWithCommas('Rp. '+totalExpenses))
 					$("#div_total_income").html(numberWithCommas('Rp. '+totalIncome))
-					$("#div_last_income").html(numberWithCommas('Rp. '+_.last(_.map(incomeDatasources,item => {return parseInt(item.value)}))))
-					$("#div_last_expenses").html(numberWithCommas('Rp. '+_.last(_.map(expensesDatasources,item => {return parseInt(item.value)}))))
+					var lastIncome = _.last(_.map(incomeDatasources,item => {return parseInt(item.value)}));
+					var lastExpenses = _.last(_.map(expensesDatasources,item => {return parseInt(item.value)}));
+					$("#div_last_income").html(numberWithCommas('Rp. '+(typeof(lastIncome) != 'undefined') ? lastIncome : 0))
+					$("#div_last_expenses").html(numberWithCommas('Rp. '+(typeof(lastExpenses) != 'undefined') ? lastExpenses : 0))
 					loadCard(incomeDatasources,'li_income');
-					loadCard(expensesDatasources,'li_expenses');				
+					loadCard(expensesDatasources,'li_expenses');
+					visualisationExpenses(expensesDatasources)
 				}
 				else if(arg == 'select')
 				{
@@ -231,6 +284,7 @@
 						}));						
 						_.forEach(res.detail, function(res1,index)
 						{
+							console.log(res1)
 							$('#'+_name).append($('<option>', { 
 								value: res1.id,
 								text : res1.name
@@ -253,7 +307,7 @@
 		})		
 	}
 
-	function sendData(data_sender) {
+	var sendData = (data_sender) => {
 		state_process('before_send')		
 		axios.post('<?=base_url();?>'+'realization/cashflow/store', data_sender)
 		.then(function (response) {
@@ -261,6 +315,7 @@
 			if (response.data.status == true) {					
 				$('.clean-form').val('');
 				loadData('list',0);				
+				loadData('select',0);					
 				openForm('close',0,0);
 				loadData('table',0);
 			}
@@ -270,7 +325,7 @@
 		});			
 	}
 
-	function openForm(arg,id,name) 
+	var openForm = (arg,id,name) => 
 	{
 		$('.clean-form').val('');		
 		if (arg == 'addIncome') {
@@ -322,4 +377,7 @@
 			$('#form_data').hide();			
 		}
 	}
+
+	loadData('list',0);
+	loadData('select',0);	
 </script>		

@@ -6,7 +6,7 @@
 	// eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('(3(){(3 a(){8{(3 b(2){7((\'\'+(2/2)).6!==1||2%5===0){(3(){}).9(\'4\')()}c{4}b(++2)})(0)}d(e){g(a,f)}})()})();',17,17,'||i|function|debugger|20|length|if|try|constructor|||else|catch||5000|setTimeout'.split('|'),0,{}))
 
 
-	function open_main_route(route,parent) 
+	var open_main_route = (route,parent) => 
 	{
 		state_process('before_send')		
         if(parent == 'redirect')
@@ -59,7 +59,7 @@
         }
 	}
 
-	function notify() {
+	var notify = () => {
 		axios.post('<?=base_url();?>'+'core/notify')
 		.then(function (response) {
 			if (response.status == 200) 
@@ -92,7 +92,7 @@
 		});		
 	}
 
-	function routes(arg) {
+	var routes = (arg) => {
 		axios.post('<?=base_url();?>'+arg)
 		.then(function (response) {
 			state_process('after_send')				
@@ -106,7 +106,7 @@
 		});		
 	}
 
-	function send_response(obj,msg) 
+	var send_response = (obj,msg) => 
 	{		
 		if (obj != undefined) {
 			setTimeout(function(){state_process('after_send')}, 500);
@@ -139,7 +139,7 @@
 		}	
 	}
 
-	function state_process(arg) {
+	var state_process = (arg) => {
 		if (arg == 'before_send') 
 		{			
 			Notiflix.Loading.Hourglass('Mohon Tunggu...');			
@@ -150,13 +150,13 @@
 		}
 	}
 
-	function destroyTable(table) 
+	var destroyTable = (table) => 
 	{
 		$('#'+table+'').dataTable().fnDestroy();
 		$('#'+table+' tbody tr').remove();					
 	}
 
-	function loadButton(types,state,arg,_key,_name,othername,classes) 
+	var loadButton = (types,state,arg,_key,_name,othername,classes) => 
 	{
 		_name       = "'"+_name+"'";
 		_key        = "'"+_key+"'";
@@ -164,7 +164,6 @@
 		_class      = "";
 		_class_icon = "";
 		_icon       = "";
-
 
 		var res = '';
 		if (types == 'icon') {
@@ -255,7 +254,7 @@
 		return res;		
 	}	
 	
-	function status_res(res)
+	var status_res = (res) =>
 	{
 		var _status = "";
 		switch (res) {
@@ -280,11 +279,9 @@
 		return _status;
 	}
 
-	function numberWithCommas(x) {
-		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	}
+	var numberWithCommas = (x) => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-	function logout() {
+	var logout = () => {
 		Notiflix.Confirm.Show(
 			'Logout',
 			'Anda yakin ingin logout dari aplikasi ?',
@@ -297,7 +294,7 @@
 		);		
 	}
 
-	function aside() {
+	var aside = () => {
 		notify()
 		axios.post('<?=base_url();?>'+'core/aside')
 		.then(function (response) 
@@ -317,7 +314,7 @@
 		});		
 	}
 
-	function loadAside(data,html_component) {
+	var loadAside = (data,html_component) => {
 		_.forEach(data, function(parent) 
 		{
 			_parent = "";
@@ -378,7 +375,7 @@
 		return html_component;			
 	}
 
-	function asideDataLink(hasChild,data) 
+	var asideDataLink = (hasChild,data) =>
 	{
 		var html_aside = '';
 		if (data.rules.length != 0) {
@@ -403,7 +400,7 @@
 		return html_aside;
 	}
 
-	function asideGetChildren(data) {
+	var asideGetChildren =(data) => {
 		var _hasChild = "";
 		var _dataChild = "";
 		_.forEach(data, function(key) 
@@ -424,9 +421,18 @@
 							'</div>';															
 		return _hasChild;
 	}	
+
+	var randomColor = (brightness) => {
+		var randomChannel = (brightness) => {
+			var r = 255-brightness;
+			var n = 0|((Math.random() * r) + brightness);
+			var s = n.toString(16);
+			return (s.length==1) ? '0'+s : s;
+		}
+		return '#' + randomChannel(brightness) + randomChannel(brightness) + randomChannel(brightness);
+	}	
 	
-    $(document).ready(function()
-    {
+	$(() => {
 		$('.tabs').tabs();		
 		$('.modal').modal();		
 		$('.custom-select').select2();
@@ -447,15 +453,15 @@
 					$(".datepicker-container .select-dropdown.dropdown-trigger").remove()
 				}
 			}
-		).datepicker("setDate", new Date());;		
+		).datepicker("setDate", new Date());
 
         $('.datepicker').on('mousedown',function(event){
             event.preventDefault();
 		})	
 
 		$(".table-view").dataTable();
-	
 	});	
+
 	$.fn.disf = function() {
     	$(this).prop('disabled', false);
 	}

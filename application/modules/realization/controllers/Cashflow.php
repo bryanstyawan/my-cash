@@ -14,8 +14,7 @@ class Cashflow extends CI_Controller
 	public function index()
 	{
 		$this->data['title']	= 'Realization > Cashflow';
-		$view			= $this->load->view('realization/cashflow/index',$this->data);
-		return $view;
+		return $this->load->view('realization/cashflow/index',$this->data);
 	}	
 
 	public function data($arg,$id)
@@ -23,7 +22,8 @@ class Cashflow extends CI_Controller
 		# code...
 		if ($arg == 'list') {
 			# code...
-			$this->data['list'] = $this->cfw->cashflow('2020-10')->result_array();
+			$this->data['list'] = $this->cfw->cashflow(date('Y-m'))->result_array();
+			// $this->data['list'] = $this->cfw->cashflow('2020-10')->result_array();			
 		}
 		elseif ($arg == 'select') {
 			# code...
@@ -38,9 +38,27 @@ class Cashflow extends CI_Controller
 				],
 				[
 					'name'   => 'f_oid_salary_sources',
-					'detail' => $this->Stores->get('fdn_salary_sources')->result_array() 
-				]				
-			];			
+					'detail' => $this->Stores->getWhere('fdn_salary_sources',array('AND'=>array('status <>'=>0)))->result_array() 
+				],
+				[
+					'name'   => 'f_months_select',
+					'detail' => array
+					(
+						1  => array('nama' => "Januari"),
+						2  => array('nama' => "Februari"),
+						3  => array('nama' => "Maret"),
+						4  => array('nama' => "April"),
+						5  => array('nama' => "Mei"),
+						6  => array('nama' => "Juni"),
+						7  => array('nama' => "Juli"),
+						8  => array('nama' => "Agustus"),
+						9  => array('nama' => "Sebtember"),
+						10 => array('nama' => "Oktober"),
+						11 => array('nama' => "November"),
+						12 => array('nama' => "Desember")
+					)
+				]
+			];
 		}
 		else
 		{
